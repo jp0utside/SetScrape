@@ -1,4 +1,4 @@
-# 🎵 Internet Archive Music Player
+# 🎵 Set Scrape
 
 A **full-stack music player system** with a **4-service microservices backend** and **React Native mobile app** for browsing and downloading live music from Internet Archive. Features real-time browsing, intelligent concert aggregation, and offline-first functionality.
 
