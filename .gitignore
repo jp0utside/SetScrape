@@ -20,6 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+demo.py
 
 # Virtual Environment
 venv/
@@ -32,7 +33,6 @@ venv.bak/
 *.db
 *.sqlite
 *.sqlite3
-data/*.db
 
 # Logs
 *.log
@@ -68,6 +68,10 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+.env.backup
+
+# Workspace
+set-scrape.code-workspace
 
 # Temporary files
 *.tmp
