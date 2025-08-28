@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Music Player System - 4-Service Architecture</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0;
+            background: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .architecture {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .architecture h2 {
+            color: #495057;
+            margin: 0 0 15px 0;
+        }
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .service {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .service h3 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .service p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .content {
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            background: #f8f9fa;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .section h2 {
+            color: #495057;
+            margin: 0 0 15px 0;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status.healthy {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.unhealthy {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+
+        /* Browse Results Styling */
+        .browse-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .browse-header h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+        }
+        .browse-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .browse-results {
+            display: grid;
+            gap: 20px;
+        }
+        .music-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .music-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .music-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .music-header h4 {
+            margin: 0;
+            color: #495057;
+            font-size: 1.2em;
+            flex: 1;
+        }
+        .music-id {
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: #6c757d;
+            font-family: monospace;
+        }
+        .music-details p {
+            margin: 8px 0;
+            color: #495057;
+        }
+        .music-details strong {
+            color: #667eea;
+        }
+        .music-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn-details, .btn-add, .btn-back {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .btn-details {
+            background: #17a2b8;
+            color: white;
+        }
+        .btn-details:hover {
+            background: #138496;
+        }
+        .btn-add {
+            background: #28a745;
+            color: white;
+        }
+        .btn-add:hover {
+            background: #218838;
+        }
+        .btn-back {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-back:hover {
+            background: #5a6268;
+        }
+
+        /* Item Details Styling */
+        .item-details {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .item-details h3 {
+            color: #495057;
+            margin: 0 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        .item-info p {
+            margin: 10px 0;
+            color: #495057;
+        }
+        .item-info strong {
+            color: #667eea;
+        }
+        .tracks-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        .tracks-section h4 {
+            color: #495057;
+            margin: 0 0 15px 0;
+        }
+        .tracks-list {
+            background: #f8f9fa;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .track-item {
+            display: grid;
+            grid-template-columns: 50px 1fr 120px 80px 80px 100px 100px;
+            gap: 10px;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e9ecef;
+            align-items: center;
+        }
+        .track-item:last-child {
+            border-bottom: none;
+        }
+        .track-item:hover {
+            background: #e9ecef;
+        }
+        .track-number {
+            font-weight: bold;
+            color: #667eea;
+        }
+        .track-title {
+            font-weight: 500;
+        }
+        .track-id {
+            color: #28a745;
+            font-size: 0.85em;
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .track-duration, .track-size, .track-format {
+            font-size: 0.9em;
+            color: #6c757d;
+            text-align: center;
+        }
+        .btn-download {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .btn-download:hover {
+            background: #218838;
+        }
+
+        /* Directory Structure Styling */
+        .directory-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .directory-header h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.5em;
+        }
+        .directory-header p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+        .files-section {
+            margin-bottom: 20px;
+        }
+        .files-section h4 {
+            color: #495057;
+            margin: 0 0 15px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #667eea;
+        }
+        .files-list {
+            background: #f8f9fa;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .file-item {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px 100px;
+            gap: 10px;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e9ecef;
+            align-items: center;
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-item:hover {
+            background: #e9ecef;
+        }
+        .file-name {
+            font-weight: 500;
+            color: #495057;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .file-format {
+            color: #6c757d;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .file-size {
+            color: #6c757d;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .btn-download-small {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        .btn-download-small:hover {
+            background: #218838;
+        }
+        .btn-download-all {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        .btn-download-all:hover {
+            background: #0056b3;
+        }
+        .directory-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .item-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Download Queue Styles */
+        .download-queue {
+            margin-top: 20px;
+        }
+
+        .downloads-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .download-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .download-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .download-status {
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .download-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .download-info h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .download-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .download-progress {
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .download-actions {
+            margin-top: 10px;
+        }
+
+        .btn-save {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-cancel {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        /* Status-specific styles */
+        .status-pending {
+            border-left: 4px solid #ff9800;
+        }
+
+        .status-downloading {
+            border-left: 4px solid #2196F3;
+        }
+
+        .status-completed {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .status-failed {
+            border-left: 4px solid #f44336;
+        }
+
+        .status-cancelled {
+            border-left: 4px solid #9e9e9e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Music Player System</h1>
+            <p>4-Service Architecture - Local Development</p>
+        </div>
+
+        <div class="architecture">
+            <h2>🏗️ Service Architecture</h2>
+            <div class="services">
+                <div class="service">
+                    <h3>🎵 Main API Service (Port 8000)</h3>
+                    <p>User management, coordinates browsing and downloading services</p>
+                </div>
+                <div class="service">
+                    <h3>🎵 Aggregation Service (Port 8003)</h3>
+                    <p>Intelligent concert aggregation - groups recordings by concert instances</p>
+                </div>
+                <div class="service">
+                    <h3>⬇️ Download Service (Port 8002)</h3>
+                    <p>Downloads music files from Internet Archive</p>
+                </div>
+                <div class="service">
+                    <h3>🕷️ Scraping Service (Port 8001)</h3>
+                    <p>Crawls Internet Archive to build local music index</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+
+                <!-- Authentication Section -->
+                <div class="section">
+                    <h2>🔐 Authentication</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Username (min 3 chars):</label>
+                            <input type="text" id="authUsername" placeholder="Enter username (minimum 3 characters)">
+                        </div>
+                        <div class="form-group">
+                            <label>Password (min 8 chars):</label>
+                            <input type="password" id="authPassword" placeholder="Enter password (minimum 8 characters)">
+                        </div>
+                    </div>
+                    <button onclick="register()">Register</button>
+                    <button onclick="login()">Login</button>
+                    <button onclick="logout()">Logout</button>
+                    <div style="font-size: 12px; color: #666; margin-top: 10px;">
+                        Note: If you get an error, the username may already exist. Try a different username.
+                    </div>
+                    <div id="authResult" class="result" style="display: none;"></div>
+                </div>
+
+                <!-- Concert Browsing Section -->
+                <div class="section">
+                    <h2>🎵 Browse Concerts (via Aggregation Service)</h2>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                        Intelligent concert aggregation with smart caching - groups multiple recordings of the same concert together
+                    </p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Search Query (optional):</label>
+                            <input type="text" id="concertQuery" placeholder="Enter search terms">
+                        </div>
+                        <div class="form-group">
+                            <label>Date Range:</label>
+                            <select id="concertDateRange">
+                                <option value="">All time</option>
+                                <option value="30d">Last 30 days</option>
+                                <option value="90d">Last 90 days</option>
+                                <option value="1y">Last year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Artist (optional):</label>
+                            <input type="text" id="concertArtistFilter" placeholder="Filter by artist">
+                        </div>
+                        <div class="form-group">
+                            <label>Venue (optional):</label>
+                            <input type="text" id="concertVenueFilter" placeholder="Filter by venue">
+                        </div>
+                    </div>
+                    <button onclick="browseConcerts()">Browse Concerts</button>
+                    <div id="concertResult" class="result" style="display: none;"></div>
+                </div>
+
+                <!-- Raw Music Browsing Section -->
+                <div class="section">
+                    <h2>🔍 Browse Raw Recordings (via Browse Service)</h2>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                        Browse individual recordings from Internet Archive (may show multiple recordings of same concert)
+                    </p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Search Query (optional):</label>
+                            <input type="text" id="browseQuery" placeholder="Enter search terms">
+                        </div>
+                        <div class="form-group">
+                            <label>Date Range:</label>
+                            <select id="dateRange">
+                                <option value="">All time</option>
+                                <option value="30d">Last 30 days</option>
+                                <option value="90d">Last 90 days</option>
+                                <option value="1y">Last year</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Artist (optional):</label>
+                            <input type="text" id="artistFilter" placeholder="Filter by artist">
+                        </div>
+                        <div class="form-group">
+                            <label>Venue (optional):</label>
+                            <input type="text" id="venueFilter" placeholder="Filter by venue">
+                        </div>
+                    </div>
+                    <button onclick="browseMusic()">Browse Raw Recordings</button>
+                    <div id="browseResult" class="result" style="display: none;"></div>
+                </div>
+
+                <!-- Download Management Section -->
+                <div class="section">
+                    <h2>⬇️ Download Management (via Download Service)</h2>
+                    <div class="form-group">
+                        <label>Music ID:</label>
+                        <input type="text" id="downloadMusicId" placeholder="Enter music ID to download">
+                    </div>
+                    <button onclick="startDownload()">Start Download</button>
+                    <button onclick="getDownloads()">View Download Queue</button>
+                    <button onclick="refreshDownloads()">Refresh Queue</button>
+                    <div id="downloadResult" class="result" style="display: none;"></div>
+                </div>
+
+                <!-- Library and playlist management removed - focusing on browsing and downloading only -->
+
+                <!-- Admin Section -->
+                <div class="section">
+                    <h2>⚙️ Admin Operations</h2>
+                    <button onclick="getCacheInfo()">Get Cache Info</button>
+                    <button onclick="clearCache()">Clear All Cache</button>
+                    <button onclick="getSystemStats()">Get System Stats</button>
+                    <div id="adminResult" class="result" style="display: none;"></div>
+                </div>
+
+                <!-- Service Health Section -->
+                <div class="section">
+                    <h2>🏥 Service Health</h2>
+                    <button onclick="checkAllServices()">Check All Services</button>
+                    <div id="healthResult" class="result" style="display: none;"></div>
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000';
+        let authToken = localStorage.getItem('authToken');
+
+        // Utility functions
+        function showResult(elementId, data, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+        }
+
+        function getHeaders() {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            return headers;
+        }
+
+        async function makeRequest(url, options = {}) {
+            try {
+                const response = await fetch(url, {
+                    headers: getHeaders(),
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                throw new Error(`Request failed: ${error.message}`);
+            }
+        }
+
+        // Authentication functions
+        async function register() {
+            const username = document.getElementById('authUsername').value;
+            const password = document.getElementById('authPassword').value;
+
+            // Client-side validation
+            if (username.length < 3) {
+                showResult('authResult', 'Username must be at least 3 characters long', 'error');
+                return;
+            }
+            if (password.length < 8) {
+                showResult('authResult', 'Password must be at least 8 characters long', 'error');
+                return;
+            }
+
+            try {
+                const result = await makeRequest(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+                showResult('authResult', result, 'success');
+            } catch (error) {
+                // Handle specific error cases
+                if (error.message.includes('Username or email already exists')) {
+                    showResult('authResult', 'Username already exists. Please choose a different username.', 'error');
+                } else {
+                    showResult('authResult', error.message, 'error');
+                }
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('authUsername').value;
+            const password = document.getElementById('authPassword').value;
+
+            try {
+                const result = await makeRequest(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password })
+                });
+                
+                authToken = result.session_token;
+                localStorage.setItem('authToken', authToken);
+                showResult('authResult', result, 'success');
+            } catch (error) {
+                showResult('authResult', error.message, 'error');
+            }
+        }
+
+        async function logout() {
+            try {
+                const result = await makeRequest(`${API_BASE}/auth/logout`, {
+                    method: 'POST'
+                });
+                
+                authToken = null;
+                localStorage.removeItem('authToken');
+                showResult('authResult', result, 'success');
+            } catch (error) {
+                showResult('authResult', error.message, 'error');
+            }
+        }
+
+        // Music browse functions
+        async function browseMusic() {
+            const query = document.getElementById('browseQuery').value;
+            const dateRange = document.getElementById('dateRange').value;
+            const artist = document.getElementById('artistFilter').value;
+            const venue = document.getElementById('venueFilter').value;
+            
+            const params = new URLSearchParams();
+            if (query) params.append('query', query);
+            if (dateRange) params.append('date_range', dateRange);
+            if (artist) params.append('artist', artist);
+            if (venue) params.append('venue', venue);
+            
+            const url = `${API_BASE}/music/browse?${params.toString()}`;
+            console.log('🌐 Browse URL:', url); // Debug log
+            
+            try {
+                const result = await makeRequest(url);
+                console.log('📦 Browse Response:', result); // Debug log
+                showBrowseResults('browseResult', result);
+            } catch (error) {
+                console.error('❌ Browse Error:', error); // Debug log
+                showResult('browseResult', error.message, 'error');
+            }
+        }
+
+        function showBrowseResults(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result success';
+            
+            if (!data || !data.results) {
+                element.innerHTML = '<p>No results found.</p>';
+                return;
+            }
+
+            const { total, page, per_page, total_pages, results } = data;
+            
+            let html = `
+                <div class="browse-header">
+                    <h3>🎵 Live Music Results</h3>
+                    <p>Found <strong>${total}</strong> items (Page ${page} of ${total_pages})</p>
+                </div>
+                <div class="browse-results">
+            `;
+
+            results.forEach((item, index) => {
+                const date = item.date ? new Date(item.date).toLocaleDateString() : 'Unknown Date';
+                const artist = item.artist || 'Unknown Artist';
+                const venue = item.venue || 'Unknown Venue';
+                const location = item.location || '';
+                const description = item.description ? item.description.substring(0, 200) + '...' : 'No description available';
+                
+                html += `
+                    <div class="music-item">
+                        <div class="music-header">
+                            <h4>${item.title}</h4>
+                            <span class="music-id">ID: ${item.identifier}</span>
+                        </div>
+                        <div class="music-details">
+                            <p><strong>Artist:</strong> ${artist}</p>
+                            <p><strong>Date:</strong> ${date}</p>
+                            <p><strong>Venue:</strong> ${venue}${location ? `, ${location}` : ''}</p>
+                            <p><strong>Description:</strong> ${description}</p>
+                        </div>
+                        <div class="music-actions">
+                            <button onclick="getItemDetails('${item.identifier}')" class="btn-details">View Details</button>
+                            <button onclick="showAvailableDownloads('${item.identifier}', '${item.title}')" class="btn-download">See Downloads</button>
+                            <button onclick="addToLibraryFromBrowse('${item.identifier}', '${item.title}')" class="btn-add">Add to Library</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            element.innerHTML = html;
+        }
+
+        async function getItemDetails(identifier) {
+            try {
+                const result = await makeRequest(`${API_BASE}/music/item/${identifier}`);
+                showItemDetails('browseResult', result);
+            } catch (error) {
+                showResult('browseResult', `Error getting item details: ${error.message}`, 'error');
+            }
+        }
+
+        function showItemDetails(elementId, item) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result success';
+            
+            const date = item.date ? new Date(item.date).toLocaleDateString() : 'Unknown Date';
+            const artist = item.artist || 'Unknown Artist';
+            const venue = item.venue || 'Unknown Venue';
+            const location = item.location || '';
+            
+            let html = `
+                <div class="item-details">
+                    <h3>🎵 ${item.title}</h3>
+                    <div class="item-info">
+                        <p><strong>Artist:</strong> ${artist}</p>
+                        <p><strong>Date:</strong> ${date}</p>
+                        <p><strong>Venue:</strong> ${venue}${location ? `, ${location}` : ''}</p>
+                        <p><strong>Identifier:</strong> ${item.identifier}</p>
+                        ${item.description ? `<p><strong>Description:</strong> ${item.description}</p>` : ''}
+                        ${item.source ? `<p><strong>Source:</strong> ${item.source}</p>` : ''}
+                        ${item.taper ? `<p><strong>Taper:</strong> ${item.taper}</p>` : ''}
+                        ${item.lineage ? `<p><strong>Lineage:</strong> ${item.lineage}</p>` : ''}
+                    </div>
+            `;
+
+            if (item.tracks && item.tracks.length > 0) {
+                html += `
+                    <div class="tracks-section">
+                        <h4>📀 Tracks (${item.tracks.length})</h4>
+                        <div class="tracks-list">
+                `;
+                
+                item.tracks.forEach((track, index) => {
+                    const duration = track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : 'Unknown';
+                    const fileSize = track.file_size ? `${(track.file_size / 1024 / 1024).toFixed(1)} MB` : 'Unknown';
+                    
+                    html += `
+                        <div class="track-item">
+                            <span class="track-number">${track.track_number || index + 1}</span>
+                            <span class="track-title">${track.title}</span>
+                            <span class="track-duration">${duration}</span>
+                            <span class="track-size">${fileSize}</span>
+                            <span class="track-format">${track.file_format || 'Unknown'}</span>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                    <div class="item-actions">
+                        <button onclick="browseMusic()" class="btn-back">← Back to Browse</button>
+                        <button onclick="addToLibraryFromBrowse('${item.identifier}', '${item.title}')" class="btn-add">Add to Library</button>
+                    </div>
+                </div>
+            `;
+            
+            element.innerHTML = html;
+        }
+
+        function addToLibraryFromBrowse(identifier, title) {
+            // This would integrate with the library functionality
+            alert(`Added "${title}" to library! (This feature will be implemented next)`);
+        }
+
+        // Concert browsing functions
+        async function browseConcerts() {
+            const query = document.getElementById('concertQuery').value;
+            const dateRange = document.getElementById('concertDateRange').value;
+            const artist = document.getElementById('concertArtistFilter').value;
+            const venue = document.getElementById('concertVenueFilter').value;
+            
+            const params = new URLSearchParams();
+            if (query) params.append('query', query);
+            if (dateRange) params.append('date_range', dateRange);
+            if (artist) params.append('artist', artist);
+            if (venue) params.append('venue', venue);
+            
+            const url = `${API_BASE}/concerts?${params.toString()}`;
+            console.log('🎵 Concert Browse URL:', url);
+            
+            try {
+                const result = await makeRequest(url);
+                console.log('📦 Concert Browse Response:', result);
+                showConcertResults('concertResult', result);
+            } catch (error) {
+                console.error('❌ Concert Browse Error:', error);
+                showResult('concertResult', error.message, 'error');
+            }
+        }
+
+        function showConcertResults(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result success';
+            
+            if (!data || !data.results) {
+                element.innerHTML = '<p>No concerts found.</p>';
+                return;
+            }
+
+            const { total, page, per_page, total_pages, results } = data;
+            
+            let html = `
+                <div class="browse-header">
+                    <h3>🎵 Concert Results</h3>
+                    <p>Found <strong>${total}</strong> concerts (Page ${page} of ${total_pages})</p>
+                </div>
+                <div class="browse-results">
+            `;
+
+            results.forEach((concert, index) => {
+                const date = concert.date ? new Date(concert.date).toLocaleDateString() : 'Unknown Date';
+                const artist = concert.artist || 'Unknown Artist';
+                const venue = concert.venue || 'Unknown Venue';
+                const location = concert.location || '';
+                const description = concert.description ? concert.description.substring(0, 200) + '...' : 'No description available';
+                const recordingsCount = concert.total_recordings || 0;
+                const tracksCount = concert.total_tracks || 0;
+                
+                html += `
+                    <div class="music-item">
+                        <div class="music-header">
+                            <h4>${concert.title}</h4>
+                            <span class="music-id">${recordingsCount} recordings</span>
+                        </div>
+                        <div class="music-details">
+                            <p><strong>Artist:</strong> ${artist}</p>
+                            <p><strong>Date:</strong> ${date}</p>
+                            <p><strong>Venue:</strong> ${venue}${location ? `, ${location}` : ''}</p>
+                            <p><strong>Recordings:</strong> ${recordingsCount} available</p>
+                            <p><strong>Total Tracks:</strong> ${tracksCount}</p>
+                            <p><strong>Description:</strong> ${description}</p>
+                        </div>
+                        <div class="music-actions">
+                            <button onclick="getConcertDetails('${concert.concert_key}')" class="btn-details">View Concert Details</button>
+                            <button onclick="addConcertToLibrary('${concert.concert_key}', '${concert.title}')" class="btn-add">Add Concert to Library</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            element.innerHTML = html;
+        }
+
+        async function getConcertDetails(concertKey) {
+            try {
+                const result = await makeRequest(`${API_BASE}/concerts/${concertKey}`);
+                showConcertDetails('concertResult', result);
+            } catch (error) {
+                showResult('concertResult', `Error getting concert details: ${error.message}`, 'error');
+            }
+        }
+
+        function showConcertDetails(elementId, concert) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result success';
+            
+            const date = concert.date ? new Date(concert.date).toLocaleDateString() : 'Unknown Date';
+            const artist = concert.artist || 'Unknown Artist';
+            const venue = concert.venue || 'Unknown Venue';
+            const location = concert.location || '';
+            const recordingsCount = concert.total_recordings || 0;
+            const tracksCount = concert.total_tracks || 0;
+            
+            let html = `
+                <div class="item-details">
+                    <h3>🎵 ${concert.title}</h3>
+                    <div class="item-info">
+                        <p><strong>Artist:</strong> ${artist}</p>
+                        <p><strong>Date:</strong> ${date}</p>
+                        <p><strong>Venue:</strong> ${venue}${location ? `, ${location}` : ''}</p>
+                        <p><strong>Available Recordings:</strong> ${recordingsCount}</p>
+                        <p><strong>Total Tracks:</strong> ${tracksCount}</p>
+                        ${concert.description ? `<p><strong>Description:</strong> ${concert.description}</p>` : ''}
+                        ${concert.source ? `<p><strong>Source:</strong> ${concert.source}</p>` : ''}
+                        ${concert.taper ? `<p><strong>Taper:</strong> ${concert.taper}</p>` : ''}
+                        ${concert.lineage ? `<p><strong>Lineage:</strong> ${concert.lineage}</p>` : ''}
+                    </div>
+            `;
+
+            if (concert.recordings && concert.recordings.length > 0) {
+                html += `
+                    <div class="tracks-section">
+                        <h4>📀 Available Recordings (${concert.recordings.length})</h4>
+                        <div class="tracks-list">
+                `;
+                
+                concert.recordings.forEach((recording, index) => {
+                    const tracks = recording.total_tracks || 0;
+                    const size = recording.total_size ? `${(recording.total_size / 1024 / 1024).toFixed(1)} MB` : 'Unknown';
+                    
+                    html += `
+                        <div class="track-item">
+                            <span class="track-number">${index + 1}</span>
+                            <span class="track-title">${recording.title}</span>
+                            <span class="track-id">ID: ${recording.identifier}</span>
+                            <span class="track-duration">${tracks} tracks</span>
+                            <span class="track-size">${size}</span>
+                            <span class="track-format">${recording.source || 'Unknown'}</span>
+                            <button onclick="showAvailableDownloads('${recording.identifier}', '${recording.title}')" class="btn-download">See Downloads</button>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                    <div class="item-actions">
+                        <button onclick="browseConcerts()" class="btn-back">← Back to Concerts</button>
+                        <button onclick="addConcertToLibrary('${concert.concert_key}', '${concert.title}')" class="btn-add">Add Concert to Library</button>
+                    </div>
+                </div>
+            `;
+            
+            element.innerHTML = html;
+        }
+
+        function addConcertToLibrary(concertKey, title) {
+            // This would integrate with the library functionality
+            alert(`Added concert "${title}" to library! (This feature will be implemented next)`);
+        }
+
+        // Download functions
+        async function startDownload() {
+            const musicId = document.getElementById('downloadMusicId').value;
+            
+            try {
+                const result = await makeRequest(`${API_BASE}/downloads`, {
+                    method: 'POST',
+                    body: JSON.stringify({ archive_identifier: musicId })
+                });
+                showResult('downloadResult', result, 'success');
+            } catch (error) {
+                showResult('downloadResult', error.message, 'error');
+            }
+        }
+
+        async function startDownloadFromConcert(identifier, title) {
+            try {
+                const result = await makeRequest(`${API_BASE}/downloads`, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        archive_identifier: identifier,
+                        track_title: title 
+                    })
+                });
+                showResult('downloadResult', `Started download for: ${title}`, 'success');
+            } catch (error) {
+                showResult('downloadResult', `Download failed for ${title}: ${error.message}`, 'error');
+            }
+        }
+
+        async function showAvailableDownloads(identifier, title) {
+            try {
+                const result = await makeRequest(`${API_BASE}/music/directory/${identifier}`);
+                showDirectoryStructure('browseResult', result, title);
+            } catch (error) {
+                showResult('browseResult', `Failed to get downloads for ${title}: ${error.message}`, 'error');
+            }
+        }
+
+        function showDirectoryStructure(elementId, directory, title) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result success';
+            
+            let html = `
+                <div class="directory-header">
+                    <h3>📁 Available Downloads: ${title}</h3>
+                    <p><strong>Archive ID:</strong> ${directory.identifier}</p>
+                    <p><strong>Total Files:</strong> ${directory.total_files}</p>
+                    <p><strong>Total Size:</strong> ${(directory.total_size / 1024 / 1024).toFixed(1)} MB</p>
+                </div>
+            `;
+
+            // Audio files section
+            if (directory.audio_files && directory.audio_files.length > 0) {
+                html += `
+                    <div class="files-section">
+                        <h4>🎵 Audio Files (${directory.audio_files.length})</h4>
+                        <div class="files-list">
+                `;
+                
+                directory.audio_files.forEach(file => {
+                    const size = file.size ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : 'Unknown';
+                    html += `
+                        <div class="file-item">
+                            <span class="file-name">${file.filename}</span>
+                            <span class="file-format">${file.format?.toUpperCase() || 'Unknown'}</span>
+                            <span class="file-size">${size}</span>
+                            <button onclick="startDownloadFile('${directory.identifier}', '${file.filename}', '${title}')" class="btn-download-small">Download</button>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Image files section
+            if (directory.image_files && directory.image_files.length > 0) {
+                html += `
+                    <div class="files-section">
+                        <h4>🖼️ Image Files (${directory.image_files.length})</h4>
+                        <div class="files-list">
+                `;
+                
+                directory.image_files.forEach(file => {
+                    const size = file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Unknown';
+                    html += `
+                        <div class="file-item">
+                            <span class="file-name">${file.filename}</span>
+                            <span class="file-format">${file.format?.toUpperCase() || 'Unknown'}</span>
+                            <span class="file-size">${size}</span>
+                            <button onclick="startDownloadFile('${directory.identifier}', '${file.filename}', '${title}')" class="btn-download-small">Download</button>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Metadata files section
+            if (directory.metadata_files && directory.metadata_files.length > 0) {
+                html += `
+                    <div class="files-section">
+                        <h4>📄 Metadata Files (${directory.metadata_files.length})</h4>
+                        <div class="files-list">
+                `;
+                
+                directory.metadata_files.forEach(file => {
+                    const size = file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Unknown';
+                    html += `
+                        <div class="file-item">
+                            <span class="file-name">${file.filename}</span>
+                            <span class="file-format">${file.format?.toUpperCase() || 'Unknown'}</span>
+                            <span class="file-size">${size}</span>
+                            <button onclick="startDownloadFile('${directory.identifier}', '${file.filename}', '${title}')" class="btn-download-small">Download</button>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="directory-actions">
+                    <button onclick="startDownloadAll('${directory.identifier}', '${title}')" class="btn-download-all">Download All Audio Files</button>
+                </div>
+            `;
+            
+            element.innerHTML = html;
+        }
+
+        async function startDownloadFile(identifier, filename, title) {
+            try {
+                const result = await makeRequest(`${API_BASE}/downloads`, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        archive_identifier: identifier,
+                        filename: filename,
+                        track_title: `${title} - ${filename}`
+                    })
+                });
+                showResult('downloadResult', `Started download for: ${filename}`, 'success');
+            } catch (error) {
+                showResult('downloadResult', `Download failed for ${filename}: ${error.message}`, 'error');
+            }
+        }
+
+        async function startDownloadAll(identifier, title) {
+            try {
+                // Get directory structure again to get all audio files
+                const directory = await makeRequest(`${API_BASE}/music/directory/${identifier}`);
+                const audioFiles = directory.audio_files || [];
+                
+                let downloadCount = 0;
+                for (const file of audioFiles) {
+                    try {
+                        await makeRequest(`${API_BASE}/downloads`, {
+                            method: 'POST',
+                            body: JSON.stringify({ 
+                                archive_identifier: identifier,
+                                filename: file.filename,
+                                track_title: `${title} - ${file.filename}`
+                            })
+                        });
+                        downloadCount++;
+                    } catch (error) {
+                        console.error(`Failed to download ${file.filename}:`, error);
+                    }
+                }
+                
+                showResult('downloadResult', `Started ${downloadCount} downloads for: ${title}`, 'success');
+            } catch (error) {
+                showResult('downloadResult', `Failed to start downloads for ${title}: ${error.message}`, 'error');
+            }
+        }
+
+        async function getDownloads() {
+            try {
+                const result = await makeRequest(`${API_BASE}/downloads`);
+                showDownloadQueue('downloadResult', result);
+            } catch (error) {
+                showResult('downloadResult', error.message, 'error');
+            }
+        }
+
+        async function refreshDownloads() {
+            await getDownloads();
+        }
+
+        function showDownloadQueue(elementId, downloads) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result success';
+            
+            if (!downloads || downloads.length === 0) {
+                element.innerHTML = '<h3>📥 Download Queue</h3><p>No downloads found.</p>';
+                return;
+            }
+            
+            let html = `
+                <div class="download-queue">
+                    <h3>📥 Download Queue (${downloads.length} items)</h3>
+                    <div class="downloads-list">
+            `;
+            
+            downloads.forEach(download => {
+                const statusIcon = getStatusIcon(download.status);
+                const statusClass = getStatusClass(download.status);
+                const progress = download.progress || 0;
+                const fileSize = download.file_size ? `${(download.file_size / 1024 / 1024).toFixed(1)} MB` : 'Unknown';
+                const createdAt = new Date(download.created_at).toLocaleString();
+                
+                html += `
+                    <div class="download-item ${statusClass}">
+                        <div class="download-header">
+                            <span class="download-status">${statusIcon} ${download.status.toUpperCase()}</span>
+                            <span class="download-date">${createdAt}</span>
+                        </div>
+                        <div class="download-info">
+                            <h4>${download.track_title || download.filename}</h4>
+                            <p><strong>Archive:</strong> ${download.archive_identifier}</p>
+                            <p><strong>File:</strong> ${download.filename}</p>
+                            <p><strong>Size:</strong> ${fileSize}</p>
+                        </div>
+                        <div class="download-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <span class="progress-text">${progress.toFixed(1)}%</span>
+                        </div>
+                        <div class="download-actions">
+                `;
+                
+                if (download.status === 'completed') {
+                    html += `
+                        <button onclick="downloadFile('${download.id}', '${download.filename}')" class="btn-save">💾 Save File</button>
+                    `;
+                } else if (download.status === 'pending' || download.status === 'downloading') {
+                    html += `
+                        <button onclick="cancelDownload('${download.id}')" class="btn-cancel">❌ Cancel</button>
+                    `;
+                }
+                
+                if (download.error_message) {
+                    html += `<p class="error-message">Error: ${download.error_message}</p>`;
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            element.innerHTML = html;
+        }
+
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'pending': return '⏳';
+                case 'downloading': return '⬇️';
+                case 'completed': return '✅';
+                case 'failed': return '❌';
+                case 'cancelled': return '🚫';
+                default: return '❓';
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'pending': return 'status-pending';
+                case 'downloading': return 'status-downloading';
+                case 'completed': return 'status-completed';
+                case 'failed': return 'status-failed';
+                case 'cancelled': return 'status-cancelled';
+                default: return 'status-unknown';
+            }
+        }
+
+        async function downloadFile(downloadId, filename) {
+            try {
+                const response = await fetch(`${API_BASE}/downloads/${downloadId}/file`, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                // Create a blob from the response
+                const blob = await response.blob();
+                
+                // Create a download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                showResult('downloadResult', `File "${filename}" saved successfully!`, 'success');
+            } catch (error) {
+                showResult('downloadResult', `Failed to save file: ${error.message}`, 'error');
+            }
+        }
+
+        async function cancelDownload(downloadId) {
+            try {
+                const result = await makeRequest(`${API_BASE}/downloads/${downloadId}`, {
+                    method: 'DELETE'
+                });
+                showResult('downloadResult', result.message, 'success');
+                // Refresh the download queue
+                setTimeout(() => getDownloads(), 1000);
+            } catch (error) {
+                showResult('downloadResult', error.message, 'error');
+            }
+        }
+
+        // Library and playlist functions removed - focusing on browsing and downloading only
+
+        // Admin functions
+        async function getCacheInfo() {
+            try {
+                const result = await makeRequest(`${API_BASE}/admin/cache`);
+                showResult('adminResult', result, 'success');
+            } catch (error) {
+                showResult('adminResult', error.message, 'error');
+            }
+        }
+
+        async function clearCache() {
+            try {
+                const result = await makeRequest(`${API_BASE}/admin/cache`, {
+                    method: 'DELETE'
+                });
+                showResult('adminResult', result, 'success');
+            } catch (error) {
+                showResult('adminResult', error.message, 'error');
+            }
+        }
+
+        async function getSystemStats() {
+            try {
+                const result = await makeRequest(`${API_BASE}/stats`);
+                showResult('adminResult', result, 'success');
+            } catch (error) {
+                showResult('adminResult', error.message, 'error');
+            }
+        }
+
+        // Health check functions
+        async function checkAllServices() {
+            const services = [
+                { name: 'Main API', url: 'http://127.0.0.1:8000/health' },
+                { name: 'Aggregation Service', url: 'http://127.0.0.1:8003/health' },
+                { name: 'Download Service', url: 'http://127.0.0.1:8002/health' },
+                { name: 'Browse Service', url: 'http://127.0.0.1:8001/health' }
+            ];
+
+            const results = {};
+            
+            for (const service of services) {
+                try {
+                    const response = await fetch(service.url);
+                    results[service.name] = {
+                        status: response.ok ? 'healthy' : 'unhealthy',
+                        data: await response.json()
+                    };
+                } catch (error) {
+                    results[service.name] = {
+                        status: 'unhealthy',
+                        error: error.message
+                    };
+                }
+            }
+            
+            showResult('healthResult', results, 'info');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎵 Music Player System - Web Interface Loaded');
+            console.log('📋 Available endpoints:');
+            console.log('   • Main API: http://127.0.0.1:8000/docs');
+            console.log('   • Aggregation Service: http://127.0.0.1:8003/docs');
+            console.log('   • Download Service: http://127.0.0.1:8002/docs');
+            console.log('   • Browse Service: http://127.0.0.1:8001/docs');
+        });
+    </script>
+</body>
+</html>

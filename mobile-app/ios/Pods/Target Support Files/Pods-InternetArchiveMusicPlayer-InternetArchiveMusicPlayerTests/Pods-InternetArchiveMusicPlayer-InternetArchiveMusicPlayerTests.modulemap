@@ -1,0 +1,6 @@
+module Pods_InternetArchiveMusicPlayer_InternetArchiveMusicPlayerTests {
+  umbrella header "Pods-InternetArchiveMusicPlayer-InternetArchiveMusicPlayerTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

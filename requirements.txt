@@ -1,0 +1,49 @@
+# FastAPI and ASGI
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Database (SQLite for local development)
+sqlalchemy[asyncio]>=2.0.0
+aiosqlite>=0.19.0
+alembic>=1.12.0
+
+# HTTP and Web Scraping
+aiohttp>=3.9.0
+httpx>=0.25.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Audio Processing
+pydub>=0.25.0
+mutagen>=1.47.0
+
+# Data Processing
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+
+# Authentication and Security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.0
+bcrypt>=4.1.0
+cryptography>=41.0.0
+PyJWT>=2.8.0
+
+# File Handling
+aiofiles>=23.2.0
+
+# Background Tasks (replacing Celery)
+asyncio-mqtt>=0.16.0
+schedule>=1.2.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+httpx>=0.25.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.0

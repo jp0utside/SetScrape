@@ -1,0 +1,95 @@
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+# require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+
+platform :ios, min_ios_version_supported
+prepare_react_native_project!
+
+# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
+# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
+#
+# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
+# ```js
+# module.exports = {
+#   dependencies: {
+#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
+# ```
+flipper_config = FlipperConfiguration.disabled
+
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+target 'InternetArchiveMusicPlayer' do
+  # config = use_native_modules!
+
+  # Flags change depending on the env values.
+  flags = get_default_flags()
+
+  use_react_native!(
+    :path => '../node_modules/react-native',
+    # Hermes is now enabled by default. Disable by setting this flag to false.
+    :hermes_enabled => false,
+    :fabric_enabled => flags[:fabric_enabled],
+    # Enables Flipper.
+    #
+    # Note that if you have use_frameworks! enabled, Flipper will not work and
+    # you should disable the next line.
+    :flipper_configuration => flipper_config,
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  # Manually add AsyncStorage
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
+  
+  # Manually add React Native Gesture Handler
+  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+  
+  # Manually add React Native Safe Area Context
+  pod 'react-native-safe-area-context', :path => '../node_modules/react-native-safe-area-context'
+  
+  # Manually add React Native Screens
+  pod 'RNScreens', :path => '../node_modules/react-native-screens'
+  
+  # Manually add all other React Native packages that need linking
+  pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
+  pod 'RNFastImage', :path => '../node_modules/react-native-fast-image'
+  pod 'RNFS', :path => '../node_modules/react-native-fs'
+  pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
+  pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
+  pod 'RNSound', :path => '../node_modules/react-native-sound'
+  pod 'RNSVG', :path => '../node_modules/react-native-svg'
+  pod 'react-native-track-player', :path => '../node_modules/react-native-track-player'
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
+  target 'InternetArchiveMusicPlayerTests' do
+    inherit! :complete
+    # Pods for testing
+  end
+
+  post_install do |installer|
+    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+    react_native_post_install(
+      installer,
+      '../node_modules/react-native',
+      :mac_catalyst_enabled => false
+    )
+    
+    # Fix sandbox permission issues
+    system('./fix-sandbox-issue.sh')
+    
+    # Copy vector icons fonts to the app bundle
+    system('cp -r ../node_modules/react-native-vector-icons/Fonts/* ./InternetArchiveMusicPlayer/')
+    
+    __apply_Xcode_12_5_M1_post_install_workaround(installer)
+
+    # Fix deployment target warnings
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.4'
+      end
+    end
+  end
+end
