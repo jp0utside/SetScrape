@@ -54,8 +54,16 @@ cd ios && pod install && cd ..
 # For physical device: http://YOUR_SERVER_IP:8000
 
 # Run the app
-npx react-native run-android  # or npx react-native run-ios --scheme InternetArchiveMusicPlayer
+npx react-native run-ios --scheme InternetArchiveMusicPlayer  # iOS only
 ```
+
+## 📱 Platform Status
+
+- **✅ iOS**: Fully functional and tested
+- **🚧 Android**: Currently not working - development in progress
+  - Android build configuration needs to be completed
+  - Native dependencies may need additional setup
+  - Consider using iOS simulator for development until Android is ready
 
 ## 📋 Service URLs
 
@@ -120,6 +128,7 @@ This system is designed for local development with:
 - **React Native** for cross-platform development
 - **Material Design** principles for UI
 - **Hot reloading** for development
+- **iOS Focus**: Currently optimized for iOS development and testing
 
 ## 📖 Documentation
 
@@ -136,8 +145,8 @@ python demo.py                    # Demo API calls
 
 # Mobile App
 npm start                         # Start Metro bundler
-npm run android                   # Run on Android
 npx react-native run-ios --scheme InternetArchiveMusicPlayer  # Run on iOS
+# npm run android                   # Android not working yet
 ```
 
 ## 🔮 Future Enhancements
